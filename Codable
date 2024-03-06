@@ -1,0 +1,52 @@
+import UIKit
+
+struct Article: Codable {
+    let title: String
+    let content: String
+}
+
+class ViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // URL del servicio JSON
+        let urlString = "https://programandoenswift.com/2018/02/26/procesando-json-en-swift-4/"
+        
+        // Crear URL a partir del string
+        guard let url = URL(string: urlString) else {
+            print("URL inválida.")
+            return
+        }
+        
+        // Crear una tarea de sesión para obtener los datos
+        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if let error = error {
+                print("Error al realizar la solicitud: \(error)")
+                return
+            }
+            
+            // Verificar si hay datos disponibles
+            guard let data = data else {
+                print("No se recibieron datos.")
+                return
+            }
+            
+            do {
+                // Decodificar los datos JSON en una instancia de la estructura Article
+                let decoder = JSONDecoder()
+                let article = try decoder.decode(Article.self, from: data)
+                
+                // Manejar el objeto decodificado
+                print("Título del artículo: \(article.title)")
+                print("Contenido del artículo: \(article.content)")
+                
+            } catch let error {
+                print("Error al decodificar los datos JSON: \(error)")
+            }
+        }
+        
+        // Iniciar la tarea
+        task.resume()
+    }
+}
